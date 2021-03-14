@@ -9,30 +9,64 @@ namespace Player
 {
     public class Lister
     {
-        public string CurrentPath { get; private set; } 
+        private List<FileSystemInfo> children = null;
+        public FileSystemInfo currentPath;
+        public FileSystemInfo CurrentPath
+        {
+            get
+            {
+                return currentPath;
+            }
+            set
+            {
+                currentPath = value;
+                children = GetChildren();
+            }
+        }
+        private FileSystemInfo GetPathInfo(string path)
+        {
+            if (File.Exists(path))
+            {
+                return new FileInfo(path);
+            }
+            else if(Directory.Exists(path))
+            {
+                return new DirectoryInfo(path);
+            }
+            return null;
+        }
+
+        internal void ChangePath(string selectedItem)
+        {
+            if(children != null)
+            {
+                var path = children.Where(x => x.Name == selectedItem).SingleOrDefault();
+                if(path != null)
+                {
+                    CurrentPath = path;
+                }
+            }
+        }
+
         public Lister(string path = @"C:\")
         {
-            CurrentPath = path;
+            CurrentPath = GetPathInfo(path);
+        }
+        private List<FileSystemInfo> GetChildren()
+        {
+            if (CurrentPath != null && CurrentPath.Attributes.HasFlag(FileAttributes.Directory))
+            {
+                return (CurrentPath as DirectoryInfo).GetFileSystemInfos().ToList();
+            }
+            return null;
         }
         public List<string> GetChildrenNames()
         {
-            var len = CurrentPath.Length;
-            return Directory.GetDirectories(CurrentPath)
-                .Select(x => x.Substring(len))
-                .Concat(Directory.GetFiles(CurrentPath)
-                    .Select(x => x.Substring(len)))
-                .ToList();
-            
+            if(children != null)
+            {
+                return children.Select(x => x.Name).ToList();
+            }
+            return new List<string>();
         }
-        /*
-        public string[] GetDirectories()
-        {
-            return Directory.GetDirectories(CurrentPath);
-        }
-        public string[] GetFiles()
-        {
-            return Directory.GetFiles(CurrentPath);
-        }
-        */
     }
 }

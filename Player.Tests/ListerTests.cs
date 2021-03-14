@@ -24,7 +24,7 @@ namespace Player.Tests
         public void Test1()
         {
             Lister lister = new Lister();
-            Assert.AreEqual(@"C:\", lister.CurrentPath);
+            Assert.AreEqual(@"C:\", lister.CurrentPath.FullName);
         }
 
         [Test]

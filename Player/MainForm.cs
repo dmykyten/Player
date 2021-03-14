@@ -20,5 +20,16 @@ namespace Player
 
         }
 
+        private void FilesListBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            
+            if(e.KeyChar == '\r')
+            {
+                var selectedItem = this.FilesListBox.SelectedItem.ToString();
+                lister.ChangePath(selectedItem);
+                FilesListBox.Items.Clear();
+                lister.GetChildrenNames().ForEach(x => FilesListBox.Items.Add(x));
+            }
+        }
     }
 }

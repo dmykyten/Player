@@ -57,6 +57,7 @@
             this.FilesListBox.Name = "FilesListBox";
             this.FilesListBox.Size = new System.Drawing.Size(260, 444);
             this.FilesListBox.TabIndex = 0;
+            this.FilesListBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.FilesListBox_KeyPress);
             // 
             // MainForm
             // 
