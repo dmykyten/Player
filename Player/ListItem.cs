@@ -7,6 +7,33 @@ using System.IO;
 
 namespace Player
 {
+    public interface IListItem
+    {
+        List<IListItem> GetChildren();
+        string GetPath();
+        bool IsAccessibleDirectory();
+        string ToString();
+    }
+    class DisksListItem : IListItem
+    {
+        public List<IListItem> GetChildren()
+        {
+            var drives = DriveInfo.GetDrives().Where(x => x.IsReady == true).Select(x => new ListItem(x.RootDirectory.FullName)).ToList<IListItem>();
+            return drives;
+        }
+        public bool IsAccessibleDirectory()
+        {
+            return true;
+        }
+        public string GetPath()
+        {
+            return "\\\\";
+        }
+        public override string ToString()
+        {
+            return "..";
+        }
+    }
     class ParentListItem : ListItem
     {
         public ParentListItem(string path) : base (path)
@@ -19,38 +46,47 @@ namespace Player
         }
     }
 
-    public class ListItem
+    public class ListItem : IListItem
     {
         private List<FileSystemInfo> childrenFiles = null;
-        public FileSystemInfo currentPath;
-        public FileSystemInfo CurrentPath
-        {
-            get
-            {
-                return currentPath;
-            }
-            set
-            {
-                currentPath = value;
-                //children = GetChildren();
-            }
-        }
+
+        private FileSystemInfo CurrentPath { get; set; }
         public ListItem(string path)
         {
-            currentPath = GetPathInfo(path);
+            CurrentPath = GetPathInfo(path);
         }
-        public List<ListItem> GetChildren()
+        public string GetPath()
         {
-            var children = GetChildrenFiles().Select(x => new ListItem(x.FullName)).ToList();
-            if (currentPath.Attributes.HasFlag(FileAttributes.Directory))
+            return CurrentPath.FullName;
+        }
+        public bool IsAccessibleDirectory()
+        {
+            try
             {
-                var parent = (currentPath as DirectoryInfo).Parent;
+                return CurrentPath.Attributes.HasFlag(FileAttributes.Directory) && GetChildren().Count > -1;
+            }
+            catch (UnauthorizedAccessException e)
+            {
+                return false;
+            }
+
+        }
+        public List<IListItem> GetChildren()
+        {
+            var children = GetChildrenFiles().Select(x => new ListItem(x.FullName)).ToList<IListItem>();
+            if (CurrentPath.Attributes.HasFlag(FileAttributes.Directory))
+            {
+                var parent = (CurrentPath as DirectoryInfo).Parent;
                 if (parent != null)
                 {
                     children = children.Prepend(new ParentListItem(parent.FullName)).ToList();
                 }
+                else
+                {
+                    children = children.Prepend(new DisksListItem()).ToList();
+                }
             }
-            return children;  
+            return children;
         }
         private FileSystemInfo GetPathInfo(string path)
         {
@@ -66,7 +102,7 @@ namespace Player
         }
         private List<FileSystemInfo> GetChildrenFiles()
         {
-            if(childrenFiles != null)
+            if (childrenFiles != null)
             {
                 return childrenFiles;
             }
@@ -79,11 +115,11 @@ namespace Player
         }
         public override string ToString()
         {
-            if (currentPath.Attributes.HasFlag(FileAttributes.Directory))
+            if (CurrentPath.Attributes.HasFlag(FileAttributes.Directory))
             {
-                return '[' + currentPath.Name + ']';
+                return '[' + CurrentPath.Name + ']';
             }
-            return currentPath.Name;
+            return CurrentPath.Name;
         }
     }
 }

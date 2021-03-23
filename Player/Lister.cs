@@ -9,8 +9,8 @@ namespace Player
 {
     public class Lister
     {
-        public ListItem currentItem;
-        public ListItem CurrentItem
+        public IListItem currentItem;
+        public IListItem CurrentItem
         {
             get
             {
@@ -25,14 +25,21 @@ namespace Player
         {
             CurrentItem = new ListItem(path);
         }
-        public List<ListItem> GetChildren()
+        public List<IListItem> GetChildren()
         {
             return CurrentItem.GetChildren();
         }
-        public void ChangeItem(ListItem selectedItem)
+        public bool ChangeItem(IListItem selectedItem)
         {
-            currentItem = selectedItem;
-
+            if (selectedItem.IsAccessibleDirectory())
+            {
+                currentItem = selectedItem;
+            }
+            return selectedItem.IsAccessibleDirectory();
+        }
+        public string GetPath()
+        {
+            return currentItem.GetPath();
         }
     }
 }

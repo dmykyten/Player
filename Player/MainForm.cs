@@ -17,19 +17,25 @@ namespace Player
         {
             InitializeComponent();
             lister.GetChildren().ForEach(x => FilesListBox.Items.Add(x));
+            this.CommandLineComboBox.Text = lister.GetPath();
             this.FilesListBox.SetSelected(0, true);
         }
 
         private void FilesListBox_KeyPress(object sender, KeyPressEventArgs e)
         {
-            
             if(e.KeyChar == '\r')
             {
-                var selectedItem = (ListItem)this.FilesListBox.SelectedItem;
-                lister.ChangeItem(selectedItem);
-                FilesListBox.Items.Clear();
-                lister.GetChildren().ForEach(x => FilesListBox.Items.Add(x));
-                this.FilesListBox.SetSelected(0, true);
+                var selectedItem = (IListItem)this.FilesListBox.SelectedItem;
+                if (lister.ChangeItem(selectedItem)){
+                    FilesListBox.Items.Clear();
+                    lister.GetChildren().ForEach(x => FilesListBox.Items.Add(x));
+                    this.CommandLineComboBox.Text = lister.GetPath();
+                    this.FilesListBox.SetSelected(0, true);
+                }
+                else
+                {
+                    //todo: work with file
+                }
             }
         }
     }
