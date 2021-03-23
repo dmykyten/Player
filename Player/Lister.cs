@@ -9,64 +9,30 @@ namespace Player
 {
     public class Lister
     {
-        private List<FileSystemInfo> children = null;
-        public FileSystemInfo currentPath;
-        public FileSystemInfo CurrentPath
+        public ListItem currentItem;
+        public ListItem CurrentItem
         {
             get
             {
-                return currentPath;
+                return currentItem;
             }
             set
             {
-                currentPath = value;
-                children = GetChildren();
+                currentItem = value;
             }
         }
-        private FileSystemInfo GetPathInfo(string path)
-        {
-            if (File.Exists(path))
-            {
-                return new FileInfo(path);
-            }
-            else if(Directory.Exists(path))
-            {
-                return new DirectoryInfo(path);
-            }
-            return null;
-        }
-
-        internal void ChangePath(string selectedItem)
-        {
-            if(children != null)
-            {
-                var path = children.Where(x => x.Name == selectedItem).SingleOrDefault();
-                if(path != null)
-                {
-                    CurrentPath = path;
-                }
-            }
-        }
-
         public Lister(string path = @"C:\")
         {
-            CurrentPath = GetPathInfo(path);
+            CurrentItem = new ListItem(path);
         }
-        private List<FileSystemInfo> GetChildren()
+        public List<ListItem> GetChildren()
         {
-            if (CurrentPath != null && CurrentPath.Attributes.HasFlag(FileAttributes.Directory))
-            {
-                return (CurrentPath as DirectoryInfo).GetFileSystemInfos().ToList();
-            }
-            return null;
+            return CurrentItem.GetChildren();
         }
-        public List<string> GetChildrenNames()
+        public void ChangeItem(ListItem selectedItem)
         {
-            if(children != null)
-            {
-                return children.Select(x => x.Name).ToList();
-            }
-            return new List<string>();
+            currentItem = selectedItem;
+
         }
     }
 }

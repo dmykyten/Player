@@ -16,8 +16,8 @@ namespace Player
         public MainForm()
         {
             InitializeComponent();
-            lister.GetChildrenNames().ForEach(x => FilesListBox.Items.Add(x));
-
+            lister.GetChildren().ForEach(x => FilesListBox.Items.Add(x));
+            this.FilesListBox.SetSelected(0, true);
         }
 
         private void FilesListBox_KeyPress(object sender, KeyPressEventArgs e)
@@ -25,10 +25,11 @@ namespace Player
             
             if(e.KeyChar == '\r')
             {
-                var selectedItem = this.FilesListBox.SelectedItem.ToString();
-                lister.ChangePath(selectedItem);
+                var selectedItem = (ListItem)this.FilesListBox.SelectedItem;
+                lister.ChangeItem(selectedItem);
                 FilesListBox.Items.Clear();
-                lister.GetChildrenNames().ForEach(x => FilesListBox.Items.Add(x));
+                lister.GetChildren().ForEach(x => FilesListBox.Items.Add(x));
+                this.FilesListBox.SetSelected(0, true);
             }
         }
     }
